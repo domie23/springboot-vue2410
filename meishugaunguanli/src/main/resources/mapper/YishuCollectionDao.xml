@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.YishuCollectionDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yishu_id as yishuId
+        ,a.yonghu_id as yonghuId
+        ,a.yishu_collection_types as yishuCollectionTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.YishuCollectionView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,yishu.yishu_name as yishuName
+        ,yishu.yishu_uuid_number as yishuUuidNumber
+        ,yishu.yishu_photo as yishuPhoto
+        ,yishu.yishu_address as yishuAddress
+        ,yishu.zan_number as zanNumber
+        ,yishu.cai_number as caiNumber
+        ,yishu.yishu_types as yishuTypes
+        ,yishu.yishu_clicknum as yishuClicknum
+        ,yishu.yishu_content as yishuContent
+        ,yishu.yishu_delete as yishuDelete
+        ,yonghu.yonghu_uuid_number as yonghuUuidNumber
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_email as yonghuEmail
+
+        FROM yishu_collection  a
+        left JOIN yishu yishu ON a.yishu_id = yishu.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.yishuId != null and params.yishuId != ''">
+                and (
+                    a.yishu_id = #{params.yishuId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.yishuCollectionTypes != null and params.yishuCollectionTypes != ''">
+                and a.yishu_collection_types = #{params.yishuCollectionTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+
+                <!-- 判断艺术信息的id不为空 -->
+            <if test=" params.yishuIdNotNull != '' and params.yishuIdNotNull != null and params.yishuIdNotNull != 'null' ">
+                and a.yishu_id IS NOT NULL
+            </if>
+            <if test="params.zuozheId != null  and params.zuozheId != ''">
+                and yishu.zuozhe_id = #{params.zuozheId}
+            </if>
+            <if test=" params.yishuName != '' and params.yishuName != null and params.yishuName != 'null' ">
+                and yishu.yishu_name like CONCAT('%',#{params.yishuName},'%')
+            </if>
+            <if test=" params.yishuUuidNumber != '' and params.yishuUuidNumber != null and params.yishuUuidNumber != 'null' ">
+                and yishu.yishu_uuid_number like CONCAT('%',#{params.yishuUuidNumber},'%')
+            </if>
+            <if test=" params.yishuAddress != '' and params.yishuAddress != null and params.yishuAddress != 'null' ">
+                and yishu.yishu_address like CONCAT('%',#{params.yishuAddress},'%')
+            </if>
+            <if test="params.zanNumberStart != null  and params.zanNumberStart != '' ">
+                <![CDATA[  and yishu.zan_number >= #{params.zanNumberStart}   ]]>
+            </if>
+            <if test="params.zanNumberEnd != null  and params.zanNumberEnd != '' ">
+                <![CDATA[  and yishu.zan_number <= #{params.zanNumberEnd}   ]]>
+            </if>
+            <if test="params.zanNumber != null  and params.zanNumber != '' ">
+                and yishu.zan_number = #{params.zanNumber}
+            </if>
+            <if test="params.caiNumberStart != null  and params.caiNumberStart != '' ">
+                <![CDATA[  and yishu.cai_number >= #{params.caiNumberStart}   ]]>
+            </if>
+            <if test="params.caiNumberEnd != null  and params.caiNumberEnd != '' ">
+                <![CDATA[  and yishu.cai_number <= #{params.caiNumberEnd}   ]]>
+            </if>
+            <if test="params.caiNumber != null  and params.caiNumber != '' ">
+                and yishu.cai_number = #{params.caiNumber}
+            </if>
+            <if test="params.yishuTypes != null  and params.yishuTypes != ''">
+                and yishu.yishu_types = #{params.yishuTypes}
+            </if>
+
+            <if test="params.yishuClicknumStart != null  and params.yishuClicknumStart != '' ">
+                <![CDATA[  and yishu.yishu_clicknum >= #{params.yishuClicknumStart}   ]]>
+            </if>
+            <if test="params.yishuClicknumEnd != null  and params.yishuClicknumEnd != '' ">
+                <![CDATA[  and yishu.yishu_clicknum <= #{params.yishuClicknumEnd}   ]]>
+            </if>
+            <if test="params.yishuClicknum != null  and params.yishuClicknum != '' ">
+                and yishu.yishu_clicknum = #{params.yishuClicknum}
+            </if>
+            <if test=" params.yishuContent != '' and params.yishuContent != null and params.yishuContent != 'null' ">
+                and yishu.yishu_content like CONCAT('%',#{params.yishuContent},'%')
+            </if>
+            <if test="params.yishuDeleteStart != null  and params.yishuDeleteStart != '' ">
+                <![CDATA[  and yishu.yishu_delete >= #{params.yishuDeleteStart}   ]]>
+            </if>
+            <if test="params.yishuDeleteEnd != null  and params.yishuDeleteEnd != '' ">
+                <![CDATA[  and yishu.yishu_delete <= #{params.yishuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yishuDelete != null  and params.yishuDelete != '' ">
+                and yishu.yishu_delete = #{params.yishuDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(yishu.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(yishu.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuUuidNumber != '' and params.yonghuUuidNumber != null and params.yonghuUuidNumber != 'null' ">
+                and yonghu.yonghu_uuid_number like CONCAT('%',#{params.yonghuUuidNumber},'%')
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

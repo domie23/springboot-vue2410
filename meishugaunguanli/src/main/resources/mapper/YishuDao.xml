@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.YishuDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.zuozhe_id as zuozheId
+        ,a.yishu_name as yishuName
+        ,a.yishu_uuid_number as yishuUuidNumber
+        ,a.yishu_photo as yishuPhoto
+        ,a.yishu_address as yishuAddress
+        ,a.zan_number as zanNumber
+        ,a.cai_number as caiNumber
+        ,a.yishu_types as yishuTypes
+        ,a.yishu_clicknum as yishuClicknum
+        ,a.yishu_content as yishuContent
+        ,a.yishu_delete as yishuDelete
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.YishuView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,zuozhe.zuozhe_name as zuozheName
+        ,zuozhe.zuozhe_uuid_number as zuozheUuidNumber
+        ,zuozhe.zuozhe_photo as zuozhePhoto
+        ,zuozhe.zuozhe_address as zuozheAddress
+        ,zuozhe.zuozhe_jiangxinag as zuozheJiangxinag
+        ,zuozhe.zuozhe_time as zuozheTime
+        ,zuozhe.zuozhe_types as zuozheTypes
+        ,zuozhe.zuozhe_content as zuozheContent
+        ,zuozhe.zuozhe_delete as zuozheDelete
+
+        FROM yishu  a
+        left JOIN zuozhe zuozhe ON a.zuozhe_id = zuozhe.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.zuozheId != null and params.zuozheId != ''">
+                and (
+                    a.zuozhe_id = #{params.zuozheId}
+                )
+            </if>
+            <if test=" params.yishuName != '' and params.yishuName != null and params.yishuName != 'null' ">
+                and a.yishu_name like CONCAT('%',#{params.yishuName},'%')
+            </if>
+            <if test=" params.yishuUuidNumber != '' and params.yishuUuidNumber != null and params.yishuUuidNumber != 'null' ">
+                and a.yishu_uuid_number like CONCAT('%',#{params.yishuUuidNumber},'%')
+            </if>
+            <if test=" params.yishuAddress != '' and params.yishuAddress != null and params.yishuAddress != 'null' ">
+                and a.yishu_address like CONCAT('%',#{params.yishuAddress},'%')
+            </if>
+            <if test="params.zanNumberStart != null and params.zanNumberStart != ''">
+                <![CDATA[  and a.zan_number >= #{params.zanNumberStart}   ]]>
+            </if>
+            <if test="params.zanNumberEnd != null and params.zanNumberEnd != ''">
+                <![CDATA[  and a.zan_number <= #{params.zanNumberEnd}   ]]>
+            </if>
+             <if test="params.zanNumber != null and params.zanNumber != ''">
+                and a.zan_number = #{params.zanNumber}
+             </if>
+            <if test="params.caiNumberStart != null and params.caiNumberStart != ''">
+                <![CDATA[  and a.cai_number >= #{params.caiNumberStart}   ]]>
+            </if>
+            <if test="params.caiNumberEnd != null and params.caiNumberEnd != ''">
+                <![CDATA[  and a.cai_number <= #{params.caiNumberEnd}   ]]>
+            </if>
+             <if test="params.caiNumber != null and params.caiNumber != ''">
+                and a.cai_number = #{params.caiNumber}
+             </if>
+            <if test="params.yishuTypes != null and params.yishuTypes != ''">
+                and a.yishu_types = #{params.yishuTypes}
+            </if>
+            <if test="params.yishuClicknumStart != null and params.yishuClicknumStart != ''">
+                <![CDATA[  and a.yishu_clicknum >= #{params.yishuClicknumStart}   ]]>
+            </if>
+            <if test="params.yishuClicknumEnd != null and params.yishuClicknumEnd != ''">
+                <![CDATA[  and a.yishu_clicknum <= #{params.yishuClicknumEnd}   ]]>
+            </if>
+             <if test="params.yishuClicknum != null and params.yishuClicknum != ''">
+                and a.yishu_clicknum = #{params.yishuClicknum}
+             </if>
+            <if test=" params.yishuContent != '' and params.yishuContent != null and params.yishuContent != 'null' ">
+                and a.yishu_content like CONCAT('%',#{params.yishuContent},'%')
+            </if>
+            <if test="params.yishuDeleteStart != null and params.yishuDeleteStart != ''">
+                <![CDATA[  and a.yishu_delete >= #{params.yishuDeleteStart}   ]]>
+            </if>
+            <if test="params.yishuDeleteEnd != null and params.yishuDeleteEnd != ''">
+                <![CDATA[  and a.yishu_delete <= #{params.yishuDeleteEnd}   ]]>
+            </if>
+             <if test="params.yishuDelete != null and params.yishuDelete != ''">
+                and a.yishu_delete = #{params.yishuDelete}
+             </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+
+                <!-- 判断作者的id不为空 -->
+            <if test=" params.zuozheIdNotNull != '' and params.zuozheIdNotNull != null and params.zuozheIdNotNull != 'null' ">
+                and a.zuozhe_id IS NOT NULL
+            </if>
+            <if test=" params.zuozheName != '' and params.zuozheName != null and params.zuozheName != 'null' ">
+                and zuozhe.zuozhe_name like CONCAT('%',#{params.zuozheName},'%')
+            </if>
+            <if test=" params.zuozheUuidNumber != '' and params.zuozheUuidNumber != null and params.zuozheUuidNumber != 'null' ">
+                and zuozhe.zuozhe_uuid_number like CONCAT('%',#{params.zuozheUuidNumber},'%')
+            </if>
+            <if test=" params.zuozheAddress != '' and params.zuozheAddress != null and params.zuozheAddress != 'null' ">
+                and zuozhe.zuozhe_address like CONCAT('%',#{params.zuozheAddress},'%')
+            </if>
+            <if test=" params.zuozheJiangxinag != '' and params.zuozheJiangxinag != null and params.zuozheJiangxinag != 'null' ">
+                and zuozhe.zuozhe_jiangxinag like CONCAT('%',#{params.zuozheJiangxinag},'%')
+            </if>
+            <if test=" params.zuozheTimeStart != '' and params.zuozheTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zuozhe.zuozhe_time) >= UNIX_TIMESTAMP(#{params.zuozheTimeStart}) ]]>
+            </if>
+            <if test=" params.zuozheTimeEnd != '' and params.zuozheTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zuozhe.zuozhe_time) <= UNIX_TIMESTAMP(#{params.zuozheTimeEnd}) ]]>
+            </if>
+            <if test="params.zuozheTime != null and params.zuozheTime != ''">
+                and a.zuozhe_time = #{params.zuozheTime}
+            </if>
+            <if test="params.zuozheTypes != null  and params.zuozheTypes != ''">
+                and zuozhe.zuozhe_types = #{params.zuozheTypes}
+            </if>
+
+            <if test=" params.zuozheContent != '' and params.zuozheContent != null and params.zuozheContent != 'null' ">
+                and zuozhe.zuozhe_content like CONCAT('%',#{params.zuozheContent},'%')
+            </if>
+            <if test="params.zuozheDeleteStart != null  and params.zuozheDeleteStart != '' ">
+                <![CDATA[  and zuozhe.zuozhe_delete >= #{params.zuozheDeleteStart}   ]]>
+            </if>
+            <if test="params.zuozheDeleteEnd != null  and params.zuozheDeleteEnd != '' ">
+                <![CDATA[  and zuozhe.zuozhe_delete <= #{params.zuozheDeleteEnd}   ]]>
+            </if>
+            <if test="params.zuozheDelete != null  and params.zuozheDelete != '' ">
+                and zuozhe.zuozhe_delete = #{params.zuozheDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zuozhe.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zuozhe.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
